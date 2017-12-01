@@ -1,0 +1,47 @@
+---
+#
+# Vars for DMLE Tomcat settings
+# file: defaults/main.yml
+
+# User account that runs the DMLE API application
+dmleuser: "dmleuser"
+dmleuser_home: "/opt/{{ dmleuser }}"
+
+java_home: "/usr/java/jdk1.7.0_67-cloudera"
+mem_alloc: "4g"
+max_mem_alloc: "8g"
+permsize: "128m"
+max_permsize: "512m"
+
+# Location of the DMLE API Tomcat server
+dmleservice_home: "{{ dmleuser_home }}/DMLEService"
+workfusion_home: "{{ dmleuser_home }}/DMLEWorkfusion_Tomcat"
+
+# location of the NAG libraries
+nag_library_home: "{{ dmleservice_home }}/nag_lib/"
+
+# control whether NewRelic is enabled or not
+new_relic: true
+
+# location of NewRelic jar file for classpath
+new_relic_jar: "{{ dmleservice_home }}/newrelic/newrelic.jar"
+
+# control whether JMX is enabled or not
+jmx_enable: false
+
+# port number for JMX to listen on
+jmx_port: 8082
+
+# control whether Contrast is enabled or not
+contrast: true
+
+# value set in stopDMLEService.sh to tell Tomcat how long to wait before killing the server
+# value is in seconds
+stop_wait_time: "60"
+
+#
+# Set these in the group_vars/all.yml for the specific environment
+#
+appEnv:
+appEnvOGRDS:
+appEnvImage:

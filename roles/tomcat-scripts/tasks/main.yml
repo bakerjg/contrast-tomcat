@@ -1,0 +1,168 @@
+---
+# Tasks setup Tomcat setenv.sh script and DMLE start/stop scripts
+# @author: Jeff Baker
+# @date: 2017-01-05
+#
+# ---------------------------------------------------------------------------
+
+#
+# Some debug statements for valdiating the required variables values
+# Use -v on the command line
+#
+- debug:
+    var: dmleuser
+    verbosity: 1
+  tags:
+    - always
+
+# Valdiate that the dmleuser variable is not null
+- name: Checking for dmleuser value
+  fail: msg="Bailing out. This play requires 'dmleuser' "
+  when: dmleuser is undefined or dmleuser == None
+  tags:
+    - always
+
+- debug:
+    var: appEnv
+    verbosity: 1
+  tags:
+    - always
+
+# Valdiate that the appEnv variable is not null
+- name: Checking for appEnv value
+  fail: msg="Bailing out. This play requires 'appEnv' "
+  when: appEnv is undefined or appEnv == None
+  tags:
+    - always
+
+- debug:
+    var: appEnvOGRDS
+    verbosity: 1
+  tags:
+    - always
+
+# Valdiate that the appEnvOGRDS variable is not null
+- name: Checking for appEnvOGRDS value
+  fail: msg="Bailing out. This play requires 'appEnvOGRDS' "
+  when: appEnvOGRDS is undefined or appEnvOGRDS == None
+  tags:
+    - always
+
+- debug:
+    var: appEnvImage
+    verbosity: 1
+  tags:
+    - always
+
+# Valdiate that the appEnvImage variable is not null
+- name: Checking for appEnvImage value
+  fail: msg="Bailing out. This play requires 'appEnvImage' "
+  when: appEnvImage is undefined or appEnvImage == None
+  tags:
+    - always
+
+# Show the values of jmx_enable variable
+- debug:
+    var: jmx_enable
+  tags:
+    - always
+
+# Show the values of new_relic variable
+- debug:
+    var: new_relic
+  tags:
+    - always
+
+# Show the values of contrast variable
+- debug:
+    var: contrast
+  tags:
+    - always
+
+# Create the setenv.sh file
+- name: Setup setenv.sh file
+  template: src=setenv.sh.j2 dest={{ dmleservice_home }}/bin/setenv.sh mode=0550 backup=yes
+  register: dmlesetenv
+  tags:
+    - dmlesetenv
+    - dmle
+
+# Clean up all but last 2 backups
+- name: clean setenv.sh backups
+  shell: find {{ dmleservice_home }}/bin -maxdepth 1 -iname 'setenv.sh.*' -type f | sort | head -n-2 | xargs --no-run-if-empty rm
+  when: dmlesetenv.changed
+  tags:
+    - dmlesetenv
+    - dmle
+
+# Create the DMLE Webapp start script
+- name: Setup startDMLEService.sh file
+  template: src=startDMLEService.sh.j2 dest={{ dmleuser_home }}/bin/startDMLEService.sh mode=0550 backup=yes
+  register: startDMLE
+  tags:
+    - dmle
+
+# Clean up all but last 2 backups
+- name: clean startDMLEService.sh backups
+  shell: find {{ dmleuser_home }}/bin -maxdepth 1 -iname 'startDMLEService.sh.*' -type f | sort | head -n-2 | xargs --no-run-if-empty  rm
+  when: startDMLE.changed
+  tags:
+    - dmle
+
+# Create the DMLE Webapp stop script
+- name: Setup stopDMLEService.sh file
+  template: src=stopDMLEService.sh.j2 dest={{ dmleuser_home }}/bin/stopDMLEService.sh mode=0550 backup=yes
+  register: stopDMLE
+  tags:
+    - dmle
+
+# Clean up all but last 2 backups
+- name: clean stopDMLEService.sh backups
+  shell: find {{ dmleuser_home }}/bin -maxdepth 1 -iname 'stopDMLEService.sh.*' -type f | sort | head -n-2 | xargs --no-run-if-empty  rm
+  when: stopDMLE.changed
+  tags:
+    - dmle
+
+# Create the setenv.sh file
+- name: Setup setenv.sh file
+  template: src=setenv.sh.j2 dest={{ workfusion_home }}/bin/setenv.sh mode=0550 backup=yes
+  register: workfusionsetenv
+  tags:
+    - workfusionsetenv
+    - workfusion
+
+# Clean up all but last 2 backups
+- name: clean setenv.sh backups
+  shell: find {{ workfusion_home }}/bin -maxdepth 1 -iname 'setenv.sh.*' -type f | sort | head -n-2 | xargs --no-run-if-empty rm
+  when: workfusionsetenv.changed
+  tags:
+    - workfusionsetenv
+    - workfusion
+
+# Create the DMLE Workfusion Webapp start script
+- name: Setup startDMLEWorkfusion.sh file
+  template: src=startDMLEWorkfusion.sh.j2 dest={{ dmleuser_home }}/bin/startDMLEWorkfusion.sh mode=0550 backup=yes
+  register: startDMLEWorkfusion
+  tags:
+    - workfusion
+
+# Clean up all but last 2 backups
+- name: clean startDMLEWorkfusion.sh backups
+  shell: find {{ dmleuser_home }}/bin -maxdepth 1 -iname 'startDMLEWorkfusion.sh.*' -type f | sort | head -n-2 | xargs --no-run-if-empty  rm
+  when: startDMLEWorkfusion.changed
+  tags:
+    - workfusion
+
+# Create the DMLE Workfusion Webapp stop script
+- name: Setup stopDMLEWorkfusion.sh file
+  template: src=stopDMLEWorkfusion.sh.j2 dest={{ dmleuser_home }}/bin/stopDMLEWorkfusion.sh mode=0550 backup=yes
+  register: stopDMLEWorkfusion
+  tags:
+    - workfusion
+
+# Clean up all but last 2 backups
+- name: clean stopDMLEWorkfusion.sh backups
+  shell: find {{ dmleuser_home }}/bin -maxdepth 1 -iname 'stopDMLEWorkfusion.sh.*' -type f | sort | head -n-2 | xargs --no-run-if-empty  rm
+  when: stopDMLEWorkfusion.changed
+  tags:
+    - workfusion

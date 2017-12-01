@@ -1,0 +1,33 @@
+#!/bin/sh
+
+export CLASSPATH=/etc/hadoop/conf
+export HADOOP_HOME=/etc/hadoop
+export HADOOP_CLASSPATH=/etc/hadoop/conf
+export JAVA_HOME={{ java_home }}
+export LD_LIBRARY_PATH={{ nag_library_home }}
+
+export CATALINA_PID="${CATALINA_HOME}/dmle.pid"
+export CATALINA_OPTS="-Xms{{ mem_alloc }} -Xmx{{ max_mem_alloc }}"
+export JAVA_OPTS="-server -XX:PermSize={{ permsize }} -XX:MaxPermSize={{ max_permsize }}"
+export JAVA_OPTS="${JAVA_OPTS} -DappEnv={{ appEnv }}"
+export JAVA_OPTS="${JAVA_OPTS} -DappEnvOGRDS={{ appEnvOGRDS }}"
+export JAVA_OPTS="${JAVA_OPTS} -DappEnvImage={{ appEnvImage }}"
+
+{% if new_relic == true %}
+export JAVA_OPTS="$JAVA_OPTS -javaagent:{{ new_relic_jar }}"
+{% endif %}
+
+{% if jmx_enable == true %}
+export JAVA_OPTS="${JAVA_OPTS} -Dcom.sun.management.jmxremote.port={{jmx_port }} -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Djava.rmi.server.hostname={{ ansible_hostname }}"
+{% endif %}
+
+# Environment must Development, QA or Production. Contrast only recognizes these values. Everything else defaults to Production.
+{% if contrast == true %}
+export JAVA_OPTS="$JAVA_OPTS -XX:+PrintVMOptions"
+export JAVA_OPTS="$JAVA_OPTS -XX:+PrintCommandLineFlags"
+export JAVA_OPTS="$JAVA_OPTS -javaagent:/opt/contrast/{{ appEnv }}/contrast.jar"
+export JAVA_OPTS="$JAVA_OPTS -Dcontrast.enabled=true"
+export JAVA_OPTS="$JAVA_OPTS -Dcontrast.env={{ appEnv }}"
+export JAVA_OPTS="$JAVA_OPTS -Dcontrast.server={{ appEnv }}-{{ ansible_hostname }}"
+export JAVA_OPTS="$JAVA_OPTS -Dcontrast.dir=/opt/contrast/{{ appEnv }}/logs"
+{% endif %}
